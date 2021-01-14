@@ -9,31 +9,72 @@ const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
-
+const questions = require("./lib/questions.js");
+const Choice = require("inquirer/lib/objects/choice");
+const Choices = require("inquirer/lib/objects/choices");
 
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
-const Questions = [ {
-    type: 'input',
-    name: 'empName',
-    message: '',
-},{
-    type: 'input',
-    name: 'empID',
-    message: '',
-},{
-    type: 'input',
-    name: 'empEmail',
-    message: '',
-},
+
+async function init() {
+    try {
+
+        let managerResponses = await inquirer.prompt(questions.manager);
+
+        let newManager = new Manager (   
+            managerResponses.managerName,
+            managerResponses.managerID,
+            managerResponses.managerEmail,
+            managerResponses.managerOffice
+        );
+
+        const employees = [];
+
+        employees.push(newManager);
+        console.log("A new Manager has been added to the team ", newManager )
 
 
+        let createEmployee = await inquirer.prompt(questions.create);
 
+        let employeeRole;
 
+        switch (createEmployee.createEmp) {
+            case false:
+                console.log("Input Defined. Generating your page now")
+                return;
+            case true:
+                employeeRole = await inquirer.prompt(questions.employee);
+        };
 
+        switch (employeeRole.empRole) {
+            case 'Engineer':
+                let engineerResponses = await inquirer.prompt(questions.engineer);
+                let newEngineer = new Engineer (
+                    engineerResponses.engineerName,
+                    engineerResponses.engineerID,
+                    engineerResponses.engineerEmail,
+                    engineerResponses.engineerGithib
+                    );
+                employees.push(newEngineer);
+                console.log("A new Engineer has been added to the team ", newEngineer );
+                break;
+            case 'Intern':
+                let internResponses = await inquirer.prompt(questions.intern);
+                let newIntern = new Intern (
+                    internResponses.internName,
+                    internResponses.internID,
+                    internResponses.internEmail,
+                    internResponses.internSchool
+                );
+                employees.push(newIntern);
+                console.log("A new Intern is here for your disposal ", newIntern )
+        }
+    } catch (error) {
+        console.log(error)
+    }
+};
 
-];
-
+init();
 
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
